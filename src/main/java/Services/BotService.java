@@ -16,7 +16,6 @@ public class BotService {
         this.gameState = new GameState();
     }
 
-
     public GameObject getBot() {
         return this.bot;
     }
@@ -35,7 +34,7 @@ public class BotService {
 
     public void computeNextPlayerAction(PlayerAction playerAction) {
         playerAction.action = PlayerActions.FORWARD;
-        playerAction.heading = new Random().nextInt(360);
+        playerAction.heading = 100;
 
         if (!gameState.getGameObjects().isEmpty()) {
             var foodList = gameState.getGameObjects()
@@ -79,6 +78,4 @@ public class BotService {
     private int toDegrees(double v) {
         return (int) (v * (180 / Math.PI));
     }
-
-
 }
