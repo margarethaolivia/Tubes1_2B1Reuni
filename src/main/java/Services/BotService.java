@@ -33,19 +33,65 @@ public class BotService {
     }
 
     public void computeNextPlayerAction(PlayerAction playerAction) {
+        // Initial actionnya maju
         playerAction.action = PlayerActions.FORWARD;
-        playerAction.heading = 100;
 
         if (!gameState.getGameObjects().isEmpty()) {
+            // A. Defining some important data yang sekiranya bakal membantu selama proses pembuatan bot
+            // 1. Daftar food dan jaraknya yang ada di dalam map
             var foodList = gameState.getGameObjects()
-                    .stream().filter(item -> item.getGameObjectType() == ObjectTypes.FOOD)
-                    .sorted(Comparator
-                            .comparing(item -> getDistanceBetween(bot, item)))
-                    .collect(Collectors.toList());
+                // Ambil yang object type nya food
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.FOOD)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
+            
+            // 2. Daftar player lain (lawan) dan jaraknya yang ada di dalam map
+            var otherPlayerList = gameState.getGameObjects()
+                // Ambil yang object type nya player, tapi bukan id kita (alias orang lain)
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.PLAYER && item.getId() != bot.id)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
+            
+            // 3. Daftar gas cloud dan jaraknya yang ada di dalam map
+            var gasCloudList = gameState.getGameObjects()
+                // Ambil yang object type nya gas clouds
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.GAS_CLOUD)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
+            
+            // B. Possible simple actions yang bisa dilakuin
+            // 0. Bikin dulu arah yang bakal dilaluin, defaultnya nyari makan terdekat
+            int heading = getHeadingBetween(foodList.get(0));
+            // 1. Kalo pas nyari makan ternyata makanan terdekatnya deket sama ujung peta,
+            // dia mengarah ke tengah (pusat peta)
+            if (getDistanceToCenter() > getGameState().getWorld().getRadius() - bot.getSize() * 2) {
+                heading = getHeadingToCenter();
+            }
+            // 2. Menjauhi gas cloud terdekat
+            // Pastiin dulu kalo ada gas clouds
+            else if (!gasCloudList.isEmpty()) {
+                if (getDistanceBetween(bot, gasCloudList.get(0)) <= bot.getSize() * 2 +  gasCloudList.get(0).getSize()) {
+                    heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                }
+            }
+            // 3. Interaksi terhadap other player
+            else if (!otherPlayerList.isEmpty()) {
+                // Kalo player terdekat lebih gede, kaburrr
+                if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() * 2 +  otherPlayerList.get(0).getSize()) && (otherPlayerList.get(0).getSize() > bot.getSize())) {
+                    // putar balik
+                    heading = -1 * getHeadingBetween(otherPlayerList.get(0));
+                }
+                // Kalo sama atau lebih gede? coba handle disini yaa
+            }
+            
+            // C. Insert greedy algorithm implementation here
 
-            playerAction.heading = getHeadingBetween(foodList.get(0));
+
+            // D. Arahin player ke heading yang kita tuju sesuai state yang dibaca sama bot
+            playerAction.heading = heading;
         }
 
+        // Return in implicit pointer values to pass
         this.playerAction = playerAction;
     }
 
@@ -69,9 +115,24 @@ public class BotService {
         return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
     }
 
+    // Fungsi buatan Leon - getDistanceToCenter
+    // Tujuannya simply nyari jarak antara kita ke tengah
+    private double getDistanceToCenter() {
+        var triangleX = Math.abs(bot.getPosition().x - 0);
+        var triangleY = Math.abs(bot.getPosition().y - 0);
+        return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
+    }
+
     private int getHeadingBetween(GameObject otherObject) {
         var direction = toDegrees(Math.atan2(otherObject.getPosition().y - bot.getPosition().y,
                 otherObject.getPosition().x - bot.getPosition().x));
+        return (direction + 360) % 360;
+    }
+
+    // Fungsi buatan Leon - getHeadingToCenter
+    // Ngarahin si bot ke tengah peta
+    private int getHeadingToCenter() {
+        var direction = toDegrees(Math.atan2(bot.getPosition().y, bot.getPosition().x));
         return (direction + 360) % 360;
     }
 
