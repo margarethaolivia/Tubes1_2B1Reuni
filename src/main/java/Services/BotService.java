@@ -86,6 +86,16 @@ public class BotService {
             
             // C. Insert greedy algorithm implementation here
 
+            // mastiin ukuran bot cukup besar buat fire torpedo dan jarak kita deket sama lawan
+            if (bot.getSize() >= 18 && (getDistanceBetween(bot, otherPlayerList.get(0)) < bot.getSize() * 2 + otherPlayerList.get(0).getSize())) {
+                
+                // Use torpedo salvo when lawan kita udah gede (kira2 2 till 3 times)
+                if ((otherPlayerList.get(0).getSize() > 2 * bot.getSize())) {
+                    // heading = getHeadingBetween(otherPlayerList.get(0));
+                    playerAction.action = PlayerActions.FIRETORPEDOES;
+                }
+            }
+
 
             // D. Arahin player ke heading yang kita tuju sesuai state yang dibaca sama bot
             playerAction.heading = heading;
