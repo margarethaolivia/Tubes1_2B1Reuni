@@ -67,8 +67,7 @@ public class BotService {
             if (getDistanceToCenter() > getGameState().getWorld().getRadius() - bot.getSize() * 2) {
                 heading = getHeadingToCenter();
             }
-            // 2. Menjauhi gas cloud terdekat
-            // Pastiin dulu kalo ada gas clouds
+            // 2. Menjauhi gas cloud terdekat Pastiin dulu kalo ada gas clouds
             else if (!gasCloudList.isEmpty()) {
                 if (getDistanceBetween(bot, gasCloudList.get(0)) <= bot.getSize() * 2 +  gasCloudList.get(0).getSize()) {
                     heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
@@ -128,8 +127,8 @@ public class BotService {
     // Fungsi buatan Leon - getDistanceToCenter
     // Tujuannya simply nyari jarak antara kita ke tengah
     private double getDistanceToCenter() {
-        var triangleX = Math.abs(bot.getPosition().x - 0);
-        var triangleY = Math.abs(bot.getPosition().y - 0);
+        var triangleX = Math.abs(bot.getPosition().x);
+        var triangleY = Math.abs(bot.getPosition().y);
         return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
     }
 
@@ -142,8 +141,8 @@ public class BotService {
     // Fungsi buatan Leon - getHeadingToCenter
     // Ngarahin si bot ke tengah peta
     private int getHeadingToCenter() {
-        var direction = toDegrees(Math.atan2(bot.getPosition().y, bot.getPosition().x));
-        return (-1 * (direction + 360)) % 360;
+        var direction = toDegrees(Math.atan2(-1 * bot.getPosition().y, -1 * bot.getPosition().x));
+        return (direction + 360) % 360;
     }
 
     private int toDegrees(double v) {
