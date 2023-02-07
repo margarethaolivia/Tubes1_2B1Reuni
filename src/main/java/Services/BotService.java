@@ -133,7 +133,7 @@ public class BotService {
     // Ngarahin si bot ke tengah peta
     private int getHeadingToCenter() {
         var direction = toDegrees(Math.atan2(bot.getPosition().y, bot.getPosition().x));
-        return (direction + 360) % 360;
+        return (-1 * (direction + 360)) % 360;
     }
 
     private int toDegrees(double v) {
