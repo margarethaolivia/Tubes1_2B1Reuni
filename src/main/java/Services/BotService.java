@@ -10,6 +10,7 @@ public class BotService {
     private GameObject bot;
     private PlayerAction playerAction;
     private GameState gameState;
+    private Position centralMap = new Position(0, 0);
 
     public BotService() {
         this.playerAction = new PlayerAction();
@@ -46,9 +47,9 @@ public class BotService {
                 .collect(Collectors.toList());
             
             // 2. Daftar player lain (lawan) dan jaraknya yang ada di dalam map
-            var otherPlayerList = gameState.getGameObjects()
+            var otherPlayerList = gameState.getPlayerGameObjects()
                 // Ambil yang object type nya player, tapi bukan id kita (alias orang lain)
-                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.PLAYER && item.getId() != bot.id)
+                .stream().filter(item -> item.getId() != bot.id)
                 .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
                 .collect(Collectors.toList());
             
@@ -64,37 +65,46 @@ public class BotService {
             int heading = getHeadingBetween(foodList.get(0));
             // 1. Kalo pas nyari makan ternyata makanan terdekatnya deket sama ujung peta,
             // dia mengarah ke tengah (pusat peta)
-            if (getDistanceToCenter() > getGameState().getWorld().getRadius() - bot.getSize() * 2) {
-                heading = getHeadingToCenter();
+            if (getDistanceToPoint(centralMap) > getGameState().getWorld().radius - bot.getSize() * 3) {
+                System.out.println("Bahaya kena ujung");
+                heading = getHeadingToPoint(centralMap);
             }
             // 2. Menjauhi gas cloud terdekat Pastiin dulu kalo ada gas clouds
             else if (!gasCloudList.isEmpty()) {
                 if (getDistanceBetween(bot, gasCloudList.get(0)) <= bot.getSize() * 2 +  gasCloudList.get(0).getSize()) {
                     heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                    System.out.println("Deket gas cloud");
                 }
             }
             // 3. Interaksi terhadap other player
             else if (!otherPlayerList.isEmpty()) {
                 // Kalo player terdekat lebih gede, kaburrr
-                if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() * 2 +  otherPlayerList.get(0).getSize()) && (otherPlayerList.get(0).getSize() > bot.getSize())) {
-                    // putar balik
-                    heading = -1 * getHeadingBetween(otherPlayerList.get(0));
+                if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() * 2 + otherPlayerList.get(0).getSize()) && (otherPlayerList.get(0).getSize() >= bot.getSize())) {
+                    if (bot.getSize() >= 18) {
+                        // kalo cukup nembak
+                        System.out.println("Deket musuh bisa nembak");
+                        heading = getHeadingBetween(otherPlayerList.get(0));
+                        playerAction.action = PlayerActions.FIRETORPEDOES;
+                    } else {
+                        // kalo ga, putar balik
+                        System.out.println("Deket musuh kaburrr");
+                        heading = -1 * getHeadingBetween(otherPlayerList.get(0));
+                    }
                 }
                 // Kalo sama atau lebih gede? coba handle disini yaa
             }
             
             // C. Insert greedy algorithm implementation here
+            System.out.println(getGameState().getWorld().radius);
 
             // mastiin ukuran bot cukup besar buat fire torpedo dan jarak kita deket sama lawan
-            if (bot.getSize() >= 18 && (getDistanceBetween(bot, otherPlayerList.get(0)) < bot.getSize() * 2 + otherPlayerList.get(0).getSize())) {
-                
+            /* if (bot.getSize() >= 18 && (getDistanceBetween(bot, otherPlayerList.get(0)) < bot.getSize() * 2 + otherPlayerList.get(0).getSize())) {
                 // Use torpedo salvo when lawan kita udah gede (kira2 2 till 3 times)
                 if ((otherPlayerList.get(0).getSize() > 2 * bot.getSize())) {
                     // heading = getHeadingBetween(otherPlayerList.get(0));
                     playerAction.action = PlayerActions.FIRETORPEDOES;
                 }
-            }
-
+            } */
 
             // D. Arahin player ke heading yang kita tuju sesuai state yang dibaca sama bot
             playerAction.heading = heading;
@@ -126,9 +136,9 @@ public class BotService {
 
     // Fungsi buatan Leon - getDistanceToCenter
     // Tujuannya simply nyari jarak antara kita ke tengah
-    private double getDistanceToCenter() {
-        var triangleX = Math.abs(bot.getPosition().x);
-        var triangleY = Math.abs(bot.getPosition().y);
+    private double getDistanceToPoint(Position target) {
+        var triangleX = Math.abs(bot.getPosition().x - target.x);
+        var triangleY = Math.abs(bot.getPosition().y - target.y);
         return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
     }
 
@@ -140,8 +150,8 @@ public class BotService {
 
     // Fungsi buatan Leon - getHeadingToCenter
     // Ngarahin si bot ke tengah peta
-    private int getHeadingToCenter() {
-        var direction = toDegrees(Math.atan2(-1 * bot.getPosition().y, -1 * bot.getPosition().x));
+    private int getHeadingToPoint(Position target) {
+        var direction = toDegrees(Math.atan2(target.y - bot.getPosition().y, target.x - bot.getPosition().x));
         return (direction + 360) % 360;
     }
 
