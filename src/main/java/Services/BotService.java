@@ -66,6 +66,13 @@ public class BotService {
                 .stream().filter(item -> item.getGameObjectType() == ObjectTypes.GAS_CLOUD)
                 .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
                 .collect(Collectors.toList());
+
+            // 5. Daftar wormhole dan jaraknya yang ada di dalam map
+            var wormHoleList = gameState.getGameObjects()
+                // Ambil yang object type nya wormhole
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.WORMHOLE)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
             
             // B. Greedy Implementation here
             // 0 . cek aja kalo tadinya afterburnernya nyala, matiin
@@ -73,7 +80,7 @@ public class BotService {
                 System.out.println("Matiin AB biar ga boros");
                 playerAction.action = PlayerActions.STOPAFTERBURNER;
             }
-            // 1. Greedy by oyher player -- fokus ke nembak
+            // 1. Greedy by other player -- fokus ke nembak
             playerAction.action = PlayerActions.FORWARD;
             if (!otherPlayerList.isEmpty()) {
                 // Kalo player terdekat lebih gede, kaburrr
@@ -158,6 +165,13 @@ public class BotService {
                     playerAction.action = PlayerActions.STARTAFTERBURNER;
                 } else {
                     System.out.println("Menghindar pelan");
+                    playerAction.action = PlayerActions.FORWARD;
+                }
+            }
+
+            if (getDistanceBetween(bot, wormHoleList.get(0)) > getDistanceToPoint(centralMap)) {
+                if (wormHoleList.get(0).getSize() > bot.getSize()) {
+                    playerAction.heading = (getHeadingBetween(wormHoleList.get(0)) + 90) % 360; // validasi antara 0 dan 360
                     playerAction.action = PlayerActions.FORWARD;
                 }
             }
