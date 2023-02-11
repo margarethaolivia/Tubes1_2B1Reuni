@@ -34,6 +34,7 @@ public class BotService {
     }
 
     public void computeNextPlayerAction(PlayerAction playerAction) {
+        System.out.println(getGameState().getWorld().radius);
         if (!gameState.getGameObjects().isEmpty()) {
             // A. Defining some important data yang sekiranya bakal membantu selama proses pembuatan bot
             // 1. Daftar food dan jaraknya yang ada di dalam map
@@ -79,10 +80,12 @@ public class BotService {
                     System.out.println("Matiin AB biar ga boros");
                     playerAction.action = PlayerActions.STOPAFTERBURNER;
                 }
+                
                 // Kalo player terdekat lebih gede, kaburrr
                 System.out.println("Mencari musuh...");
                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                 playerAction.action = PlayerActions.FORWARD;
+                
                 int jarakmaks = 0;  // nilai awal
                 // cari yang lebih besar
                 if (bot.getSize() > otherPlayerList.get(0).getSize()) {
@@ -90,7 +93,9 @@ public class BotService {
                 } else {
                     jarakmaks = otherPlayerList.get(0).getSize();
                 }
-                if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
+
+                // main conditional
+                if ((getDistanceBetween(bot, otherPlayerList.get(0)) < bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
                     System.out.println("Musuh dekat!");
                     if ((otherPlayerList.get(0).getSize() >= bot.getSize())) {
                         System.out.println("Ukuran lebih besarrr");
@@ -120,7 +125,7 @@ public class BotService {
                             playerAction.action = PlayerActions.FORWARD;
                         }
                     }
-                } else {
+                } else if ((getDistanceBetween(bot, otherPlayerList.get(0)) >= bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
                     System.out.println("Musuh terlalu jauh, mencari makan terdekat..");
                     if (2 * getDistanceBetween(bot, superFoodList.get(0)) <= 2.5 * getDistanceBetween(bot, foodList.get(0))) {
                         System.out.println("Deket sama superfood nih");
@@ -141,6 +146,10 @@ public class BotService {
                             playerAction.action = PlayerActions.FORWARD;
                         }
                     }
+                } else {
+                    System.out.println("Aku jauh sama apapun ;( aku ketengah ajadeh");
+                    playerAction.heading = getHeadingToPoint(centralMap);
+                    playerAction.action = PlayerActions.FORWARD;
                 }
             } else {
                 System.out.println("MENANG!!");
@@ -159,37 +168,37 @@ public class BotService {
             if (!gasCloudList.isEmpty()) {
                 if (getDistanceBetween(bot, gasCloudList.get(0)) > 0.75 * gasCloudList.get(0).getSize()) {
                     System.out.println("Deket gas cloud!");
-                    if (bot.size >= 350) {
+                    if (bot.size >= 170) {
                         System.out.println("Cabut GAASS");
-                        // playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
-                        playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                        playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                         playerAction.action = PlayerActions.STARTAFTERBURNER;
                     } else {
                         System.out.println("Menghindar pelan");
-                        // playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
-                        playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                        playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                         playerAction.action = PlayerActions.FORWARD;
                     }
                 }
             }
 
-            if (getDistanceToPoint(centralMap) > 0.75 * (getGameState().getWorld().radius)) {
+            if (getDistanceToPoint(centralMap) > 0.6 * (getGameState().getWorld().radius)) {
                 System.out.println("Bahaya kena ujung! menghindar ke tengah");
-                if (bot.size >= 350) {
+                if (bot.size >= 170) {
                     System.out.println("Cabut GAASS");
-                    // playerAction.heading = getHeadingToPoint(centralMap);
-                    playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                    playerAction.heading = getHeadingToPoint(centralMap);
+                    // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                     playerAction.action = PlayerActions.STARTAFTERBURNER;
                 } else {
                     System.out.println("Menghindar pelan");
-                    // playerAction.heading = getHeadingToPoint(centralMap);
-                    playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                    playerAction.heading = getHeadingToPoint(centralMap);
+                    // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                     playerAction.action = PlayerActions.FORWARD;
                 }
             }
             
             // C. Nota
-            System.out.println(otherPlayerList);
+            // System.out.println(otherPlayerList);
         }
 
         // Return in implicit pointer values to pass
