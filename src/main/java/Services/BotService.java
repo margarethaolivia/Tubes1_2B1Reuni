@@ -273,4 +273,70 @@ public class BotService {
     private int toDegrees(double v) {
         return (int) (v * (180 / Math.PI));
     }
+
+/*
+
+// 6. Daftar player lain (lawan) dan ukurannya yang ada di dalam map
+var otherPlayerListSize = gameState.getPlayerGameObjects()
+    // Ambil yang object type nya player, tapi bukan id kita (alias orang lain)
+    .stream().filter(item -> item.getId() != bot.id)
+    .sorted(Comparator.comparing(item -> getSizeBetween(bot, item)))
+    .collect(Collectors.toList());
+
+// 7. Daftar teleport dan jaraknya yang ada di dalam map
+var teleporterList = gameState.getGameObjects()
+    // Ambil yang object type nya gas clouds
+    .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TELEPORTER)
+    .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+    .collect(Collectors.toList());
+
+
+
+// Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
+if (!otherPlayerListSize.isEmpty()) {
+    // Untuk menerkam orang
+    if ((bot.getSize() - 20) > otherPlayerListSize.get(0).getSize() + 20) { // 20 = nilai jaga-jaga {kalau di tembak atau lawan tumbuh besar}
+        playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
+        playerAction.action = PlayerActions.FIRETELEPORT;
+        Position targetPosition = otherPlayerListSize.get(0).getPosition();
+        if (bot.getPosition() == targetPosition) {
+            playerAction.action = PlayerActions.TELEPORT;
+        }
+
+    }
+    // Untuk mekanisme kabur
+    // 10 disini untuk membedakan si kabur pake telport dengan yang lain
+    if ((otherPlayerList.get(0).getSize() - 10 > bot.getSize()) && (getDistanceBetween(bot, otherTeleporterList.get(0)) < 1.5 * bot.getSize())) {
+        playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
+        playerAction.action = playerAction.FIRETELEPORT;
+        if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5 * bot.getSize()) {
+            playerAction.action = playerAction.TELEPORT;
+        }
+    }
+}
+
+// Aktifkan Shield untuk proteksi diri dari teleporter orang
+if (!teleporterList.isEmpty()) {
+    if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5*bot.getSize()) {
+        playerAction.action = PlayerActions.ACTIVATESHIELD;
+        playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
+    }
+}
+
+// Fungsi buatan Austin - getSizeBetween
+// Nyari perbedaan size bot 1 dengan lainnya
+private int getSizeBetween(GameObject object1, GameObject object2) {
+    int size1 = object1.getSize();
+    int size2 = object2.getSize();
+    int result = 0;
+    if (size1 > size2) {
+        result = size1 - size2;
+    } else {
+        result = size2 - size1;
+    }
+    return result;
+}
+
+
+ */
 }
