@@ -1,10 +1,10 @@
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\World.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\GameState.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\GameStateDto.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\PlayerAction.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Services\BotService.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\Position.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Enums\PlayerActions.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Enums\ObjectTypes.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Models\GameObject.java
-D:\starter-pack\starter-bots\JavaBot\src\main\java\Main.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Main.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Enums\ObjectTypes.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\Position.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\PlayerAction.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\World.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Services\BotService.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\GameStateDto.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\GameObject.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Enums\PlayerActions.java
+C:\Users\axioo\Documents\ITB - Informatika\Semester 4\IF2211 Strategi Algoritma\Tugas Besar 1\starter-pack\starter-bots\Javabot\src\main\java\Models\GameState.java

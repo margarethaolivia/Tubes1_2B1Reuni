@@ -71,10 +71,24 @@ public class BotService {
                 .stream().filter(item -> item.getGameObjectType() == ObjectTypes.WORMHOLE)
                 .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
                 .collect(Collectors.toList());
+
+            // 6. Daftar player lain (lawan) dan ukurannya yang ada di dalam map
+            var otherPlayerListSize = gameState.getPlayerGameObjects()
+                // Ambil yang object type nya player, tapi bukan id kita (alias orang lain)
+                .stream().filter(item -> item.getId() != bot.id)
+                .sorted(Comparator.comparing(item -> getSizeBetween(bot, item)))
+                .collect(Collectors.toList());
+
+            // 7. Daftar teleport dan jaraknya yang ada di dalam map
+            var teleporterList = gameState.getGameObjects()
+                // Ambil yang object type nya gas clouds
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TELEPORTER)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
             
             // B. Greedy Implementation here
             // Greedy by other player -- fokus ke nembak
-            // 0. Pertama kali make sure ada pemain lain
+            // 0. Pertama kali make sure ada pemain lain, atau list pemain lain tidak kosong
             if (!otherPlayerList.isEmpty()) {
                 // 1. Cek aja kalo tadinya afterburnernya nyala, matiin
                 if (playerAction.action == PlayerActions.STARTAFTERBURNER) {
@@ -82,145 +96,208 @@ public class BotService {
                     playerAction.action = PlayerActions.STOPAFTERBURNER;
                 }
                 
-                // 2. Mencari musuh terdekat
-                System.out.println("Mencari musuh...");
-                playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                playerAction.action = PlayerActions.FORWARD;
-                
-                // 3. Mencari jarak terjauh
-                int jarakmaks = 0;  // nilai awal
-                // cari yang lebih besar
+                // 2. Mencari ukuran maksimal antara bot dan pemain lain terdekat sebagai perantara
+                int jarakmaks; 
                 if (bot.getSize() > otherPlayerList.get(0).getSize()) {
                     jarakmaks = bot.getSize();   
                 } else {
                     jarakmaks = otherPlayerList.get(0).getSize();
                 }
 
-                // 4. Kondisi main yang harus diproses
-                if (!gasCloudList.isEmpty() && getDistanceBetween(bot, gasCloudList.get(0)) > 0.75 * gasCloudList.get(0).getSize() && getDistanceToPoint(centralMap) > 0.6 * (getGameState().getWorld().radius)) {
-                    // 4.a. Kalo deket ujung dan gas cloud
-                    System.out.println("Kena ujung dan kena gas cloud :), prior ujung");
-                    if (bot.size >= 170) {
-                        System.out.println("Cabut GAASS");
-                        playerAction.heading = getHeadingToPoint(centralMap);
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                        playerAction.action = PlayerActions.STARTAFTERBURNER;
-                    } else {
-                        System.out.println("Menghindar pelan");
-                        playerAction.heading = getHeadingToPoint(centralMap);
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                        playerAction.action = PlayerActions.FORWARD;
-                    }
-                } else if (getDistanceToPoint(centralMap) > 0.6 * (getGameState().getWorld().radius)) {
-                    // 4.b. Kalo deket ujung
+                // 3. Cek Kondisi pemain, jika pemain dekat ujung peta, lakukan kemungkinan aksi
+                if (getDistanceToPoint(centralMap) > 0.6 * (getGameState().getWorld().radius)) {
                     System.out.println("Bahaya kena ujung! menghindar ke tengah");
+                    // 4. Kalo ukuran kapal lebih dari 170, cabut ke tengah pake afterburner
                     if (bot.size >= 170) {
                         System.out.println("Cabut GAASS");
                         playerAction.heading = getHeadingToPoint(centralMap);
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                         playerAction.action = PlayerActions.STARTAFTERBURNER;
-                    } else {
+                    } 
+                    // 5. Kalo ga sampe, cabut ke tengah peta biasa aja dengan forward
+                    else {
                         System.out.println("Menghindar pelan");
                         playerAction.heading = getHeadingToPoint(centralMap);
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                         playerAction.action = PlayerActions.FORWARD;
                     }
-                } else if (!gasCloudList.isEmpty() && getDistanceBetween(bot, gasCloudList.get(0)) > 0.75 * gasCloudList.get(0).getSize()) {
-                    // 4.c. Kalo deket gas cloud
-                    System.out.println("Deket gas cloud!");
-                    if (bot.size >= 170) {
-                        System.out.println("Cabut GAASS");
-                        playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                        playerAction.action = PlayerActions.STARTAFTERBURNER;
-                    } else {
-                        System.out.println("Menghindar pelan");
-                        playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
-                        // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                        playerAction.action = PlayerActions.FORWARD;
-                    }
-                } else {
-                    // 4.d. Kasus normal
+                } 
+                // 6. Kalo pemain tidak diujung peta, lakukan pencarian musuh
+                else {
+                    System.out.println("Mencari musuh...");
+                    playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                    playerAction.action = PlayerActions.FORWARD;
+                    // 7. Kalo jarak pemain dan bot dekat, cek kondisi ukuran musuh
                     if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
-                        // 5. Cek posisi musuh dari kita
                         System.out.println("Musuh dekat!");
+                        // 8. Kalo musuh lebih besar
                         if ((otherPlayerList.get(0).getSize() >= bot.getSize())) {
                             System.out.println("Ukuran lebih besarrr");
+                            // 9. Kalo ukuran bot diatas 50, artinya bot bisa nembak
                             if (bot.getSize() >= 50) {
-                                // kalo cukup nembak
                                 System.out.println("Tembak!");
                                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                                 playerAction.action = PlayerActions.FIRETORPEDOES;
-                            } else {
-                                // kalo ga, putar balik
+                            } 
+                            // 10. Kalo ga sampe 50, mending kabur ke awarh belawanan si bot lawan
+                            else {
                                 System.out.println("Kaburrrr");
                                 playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
                                 playerAction.action = PlayerActions.FORWARD;
                             }
-                        } else {
+                        } 
+                        // 11. Kalo musuh lebih kecil
+                        else {
                             System.out.println("Ukuran lebih kecil nih");
+                            // 12. Kalo ukuran pemain lawan terdekat kurang dari 1.5 kali ukuran bot, makan bot lawan
                             if ((otherPlayerList.get(0).getSize() <= 1.5 * bot.getSize())) {
-                                // kalo agak jauh mending makan
                                 System.out.println("Makann");
                                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                                 playerAction.action = PlayerActions.FORWARD;
-                            } else if ((otherPlayerList.get(0).getSize() > 1.5 * bot.getSize()) && bot.getSize() >= 50) {
-                                // kalo cukup nembak
+                            } 
+                            // 13. Kalo ukuran pemain lawan terdekat kurang dari 1.5 kali ukuran bot, makan bot lawan
+                            else if ((otherPlayerList.get(0).getSize() > 1.5 * bot.getSize()) && bot.getSize() >= 50) {
                                 System.out.println("Tembak!");
                                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                                 playerAction.action = PlayerActions.FIRETORPEDOES;
-                            } else {
-                                // kalo cukup nembak
+                            } 
+                            // 14. Kalo ukuran pemain lawan terdekat kurang dari 1.5 kali ukuran bot, makan bot lawan
+                            else {
                                 System.out.println("Tembak!");
                                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                                 playerAction.action = PlayerActions.FIRETORPEDOES;
                             }
                         }
-                    } else if ((getDistanceBetween(bot, otherPlayerList.get(0)) > bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
-                        System.out.println("Musuh terlalu jauh, mencari makan terdekat..");
-                        if (getDistanceBetween(bot, superFoodList.get(0)) > 1.5 * getDistanceBetween(bot, foodList.get(0)) && !wormHoleList.isEmpty()) {
-                            System.out.println("Initial conditional, looking for wormholes");
-                            if (getDistanceBetween(bot, wormHoleList.get(0)) > getDistanceToPoint(centralMap)) {
+                    }
+                    // 15. Kalo jarak pemain dan bot jauh, melakukan pencarian makan
+                    else if ((getDistanceBetween(bot, otherPlayerList.get(0)) > bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
+                        System.out.println("Musuh terlalu jauh...");
+                        // 16. Cek kondisi wormhole, kalo aja, jalankan skema wormhole
+                        if (!wormHoleList.isEmpty()) {
+                            System.out.println("Ada wormhole! sabi sambil nyari");
+                            // 17. Kalo wormhole lebih dekat dari superfood, pilih wormhole
+                            if (getDistanceBetween(bot, superFoodList.get(0)) > 1.5 * getDistanceBetween(bot, wormHoleList.get(0))) {
                                 if (wormHoleList.get(0).getSize() > bot.getSize()) {
-                                    playerAction.heading = getHeadingBetween(wormHoleList.get(0)) % 360; // validasi antara 0 dan 360
+                                    System.out.println("kejar the wormhole then");
+                                    playerAction.heading = getHeadingBetween(wormHoleList.get(0)) % 360;
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
+                            } 
+                            // 18. Kalo jarak ke superfood > 1.25 * food dengan pembobotan, atur makan foodlist
+                            else if (getDistanceBetween(bot, superFoodList.get(0)) > 1.25 * getDistanceBetween(bot, foodList.get(0))) {
+                                System.out.println("gaada superfood terdekat, ambil food");
+                                // 19. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 20. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
+                            } 
+                            // 21. Kalo jarak ke superfood <= 1.25 * food dengan pembobotan, atur makan superFoodlist
+                            else if (getDistanceBetween(bot, superFoodList.get(0)) <= 1.25 * getDistanceBetween(bot, foodList.get(0))) {
+                                System.out.println("Deket sama superfood nih");
+                                // 22. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 23. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan superfood :)");
+                                    playerAction.heading = getHeadingBetween(superFoodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
+                            } 
+                            // 24. Kalo gaada superfood terdekat dan wormhole empty, nyari makan biasa
+                            else {
+                                System.out.println("gaada superfood terdekat, wormhole empty");
+                                // 25. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 26. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
                             }
-                        } else if (getDistanceBetween(bot, superFoodList.get(0)) > 1.25 * getDistanceBetween(bot, foodList.get(0))) {
-                            System.out.println("gaada superfood terdekat, ambil food");
-                            if (5 * bot.size >= getGameState().getWorld().radius) {
-                                System.out.println("Ukuranku udah kegedean :( jangan makan");
-                            } else {
-                                System.out.println("Aku masih kecil butuh asupan food :)");
-                                playerAction.heading = getHeadingBetween(foodList.get(0));
-                                playerAction.action = PlayerActions.FORWARD;
-                            }
-                        } if (getDistanceBetween(bot, superFoodList.get(0)) <= 1.25 * getDistanceBetween(bot, foodList.get(0))) {
-                            System.out.println("Deket sama superfood nih");
-                            if (5 * bot.size >= getGameState().getWorld().radius) {
-                                System.out.println("Ukuranku udah kegedean :( jangan makan");
-                            } else {
-                                System.out.println("Aku masih kecil butuh asupan superfood :)");
-                                playerAction.heading = getHeadingBetween(superFoodList.get(0));
-                                playerAction.action = PlayerActions.FORWARD;
-                            }
-                        } else {
-                            System.out.println("gaada superfood terdekat, wormhole empty");
-                            if (5 * bot.size >= getGameState().getWorld().radius) {
-                                System.out.println("Ukuranku udah kegedean :( jangan makan");
-                            } else {
-                                System.out.println("Aku masih kecil butuh asupan food :)");
-                                playerAction.heading = getHeadingBetween(foodList.get(0));
-                                playerAction.action = PlayerActions.FORWARD;
+                        } 
+                        // 27. Kalo gaada wormhole sama sekali di peta
+                        else {
+                            System.out.println("Gaada yaudah nyari makan");    
+                            // 28. Kalo jarak ke superfood > 1.25 * food dengan pembobotan, atur makan foodlist
+                            if (getDistanceBetween(bot, superFoodList.get(0)) > 1.25 * getDistanceBetween(bot, foodList.get(0))) {
+                                System.out.println("gaada superfood terdekat, ambil food");
+                                // 29. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 30. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
+                            } 
+                            // 31. Kalo jarak ke superfood <= 1.25 * food dengan pembobotan, atur makan superFoodlist
+                            else if (getDistanceBetween(bot, superFoodList.get(0)) <= 1.25 * getDistanceBetween(bot, foodList.get(0))) {
+                                System.out.println("Deket sama superfood nih");
+                                // 32. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 33. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan superfood :)");
+                                    playerAction.heading = getHeadingBetween(superFoodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
+                            } // 34. Kalo gaada superfood terdekat dan wormhole empty, nyari makan biasa
+                            else {
+                                System.out.println("gaada superfood terdekat, wormhole empty");
+                                // 35. Kalo ukuran kapal udah gede, jangan makan lagi
+                                if (5 * bot.size >= getGameState().getWorld().radius) {
+                                    System.out.println("Ukuranku udah kegedean :( jangan makan");
+                                } 
+                                // 36. Kalo blm, ya silakan makan
+                                else {
+                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                }
                             }
                         }
-                    } else {
+                    } 
+                    // 37. Kalo misal posisi pas ditengah, prioritas pilih ke pusat map
+                    else {
                         System.out.println("Aku jauh sama apapun ;( aku ketengah ajadeh");
                         playerAction.heading = getHeadingToPoint(centralMap);
                         playerAction.action = PlayerActions.FORWARD;
                     }
+
+                    // Cek gas clouds, kalo ada dia bakal nimpa state yang ada
+                    /* if (!gasCloudList.isEmpty()) {
+                        if (getDistanceBetween(bot, gasCloudList.get(0)) > 0.75 * gasCloudList.get(0).getSize()) {
+                            System.out.println("Deket gas cloud!");
+                            if (bot.size >= 170) {
+                                System.out.println("Cabut GAASS");
+                                playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                                // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                                playerAction.action = PlayerActions.STARTAFTERBURNER;
+                            } else {
+                                System.out.println("Menghindar pelan");
+                                playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
+                                // playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                                playerAction.action = PlayerActions.FORWARD;
+                            }
+                        }
+                    } */
                 }
-            } else {
+            } 
+            // 38. Jika list pemain kosong, maka menang
+            else {
                 System.out.println("MENANG!!");
             }
         }
@@ -263,6 +340,20 @@ public class BotService {
         return (direction + 360) % 360;
     }
 
+    // Fungsi buatan Austin - getSizeBetween
+    // Nyari perbedaan size bot 1 dengan lainnya
+    private int getSizeBetween(GameObject object1, GameObject object2) {
+        int size1 = object1.getSize();
+        int size2 = object2.getSize();
+        int result = 0;
+        if (size1 > size2) {
+            result = size1 - size2;
+        } else {
+            result = size2 - size1;
+        }
+        return result;
+    }
+
     // Fungsi buatan Leon - getHeadingToCenter
     // Ngarahin si bot ke tengah peta
     private int getHeadingToPoint(Position target) {
@@ -275,22 +366,6 @@ public class BotService {
     }
 
 /*
-
-// 6. Daftar player lain (lawan) dan ukurannya yang ada di dalam map
-var otherPlayerListSize = gameState.getPlayerGameObjects()
-    // Ambil yang object type nya player, tapi bukan id kita (alias orang lain)
-    .stream().filter(item -> item.getId() != bot.id)
-    .sorted(Comparator.comparing(item -> getSizeBetween(bot, item)))
-    .collect(Collectors.toList());
-
-// 7. Daftar teleport dan jaraknya yang ada di dalam map
-var teleporterList = gameState.getGameObjects()
-    // Ambil yang object type nya gas clouds
-    .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TELEPORTER)
-    .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
-    .collect(Collectors.toList());
-
-
 
 // Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
 if (!otherPlayerListSize.isEmpty()) {
@@ -321,20 +396,6 @@ if (!teleporterList.isEmpty()) {
         playerAction.action = PlayerActions.ACTIVATESHIELD;
         playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
     }
-}
-
-// Fungsi buatan Austin - getSizeBetween
-// Nyari perbedaan size bot 1 dengan lainnya
-private int getSizeBetween(GameObject object1, GameObject object2) {
-    int size1 = object1.getSize();
-    int size2 = object2.getSize();
-    int result = 0;
-    if (size1 > size2) {
-        result = size1 - size2;
-    } else {
-        result = size2 - size1;
-    }
-    return result;
 }
 
 
