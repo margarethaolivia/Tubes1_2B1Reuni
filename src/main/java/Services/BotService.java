@@ -118,9 +118,9 @@ public class BotService {
                     }
                 } else {
                     System.out.println("Musuh terlalu jauh, mencari makan terdekat..");
-                    if (getDistanceBetween(bot, superFoodList.get(0)) >= getDistanceBetween(bot, foodList.get(0))) {
+                    if (2 * getDistanceBetween(bot, superFoodList.get(0)) <= 2.5 * getDistanceBetween(bot, foodList.get(0))) {
                         System.out.println("Deket sama superfood nih");
-                        if (2 * bot.size >= getGameState().getWorld().radius) {
+                        if (5 * bot.size >= getGameState().getWorld().radius) {
                             System.out.println("Ukuranku udah kegedean :( jangan makan");
                         } else {
                             System.out.println("Aku masih kecil butuh asupan superfood :)");
@@ -129,7 +129,7 @@ public class BotService {
                         }
                     } else {
                         System.out.println("gaada superfood terdekat");
-                        if (2 * bot.size >= getGameState().getWorld().radius) {
+                        if (5 * bot.size >= getGameState().getWorld().radius) {
                             System.out.println("Ukuranku udah kegedean :( jangan makan");
                         } else {
                             System.out.println("Aku masih kecil butuh asupan food :)");
@@ -147,7 +147,7 @@ public class BotService {
                 if (getDistanceBetween(bot, gasCloudList.get(0)) <= bot.getSize() * 2 +  gasCloudList.get(0).getSize()) {
                     System.out.println("Deket gas cloud!");
                     playerAction.heading = (getHeadingBetween(gasCloudList.get(0)) + 90) % 360; // validasi antara 0 dan 360
-                    if (bot.size >= 15) {
+                    if (bot.size >= 50) {
                         System.out.println("Cabut GAASS");
                         playerAction.action = PlayerActions.STARTAFTERBURNER;
                     } else {
@@ -160,7 +160,7 @@ public class BotService {
             if (getDistanceToPoint(centralMap) > getGameState().getWorld().radius - bot.getSize() * 2) {
                 System.out.println("Bahaya kena ujung! menghindar ke tengah");
                 playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
-                if (bot.size >= 15) {
+                if (bot.size >= 50) {
                     System.out.println("Cabut GAASS");
                     playerAction.action = PlayerActions.STARTAFTERBURNER;
                 } else {
@@ -178,15 +178,6 @@ public class BotService {
             
             // C. Nota
             System.out.println(otherPlayerList);
-
-            // mastiin ukuran bot cukup besar buat fire torpedo dan jarak kita deket sama lawan
-            /* if (bot.getSize() >= 18 && (getDistanceBetween(bot, otherPlayerList.get(0)) < bot.getSize() * 2 + otherPlayerList.get(0).getSize())) {
-                // Use torpedo salvo when lawan kita udah gede (kira2 2 till 3 times)
-                if ((otherPlayerList.get(0).getSize() > 2 * bot.getSize())) {
-                    // heading = getHeadingBetween(otherPlayerList.get(0));
-                    playerAction.action = PlayerActions.FIRETORPEDOES;
-                }
-            } */
         }
 
         // Return in implicit pointer values to pass
