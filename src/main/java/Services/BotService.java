@@ -380,6 +380,21 @@ if (!teleporterList.isEmpty()) {
     }
 }
 
+*Tambahan*
+// 8. Daftar torpedo salvo dan jaraknya yang ada di dalam map
+var torpedoSalvoList = gameState.getGameObjects()
+    // Ambil yang object type nya gas clouds
+    .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TORPEDO_SALVO)
+    .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+    .collect(Collectors.toList());
+
+// Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
+if (!torpedoSalvoList.isEmpty()) {
+    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 0.25 * bot.getSize()) {
+        playerAction.action = PlayerActions.ACTIVATESHIELD;
+        playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
+    }
+}
 
  */
 }
