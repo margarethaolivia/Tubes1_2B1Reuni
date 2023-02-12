@@ -85,6 +85,13 @@ public class BotService {
                 .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TELEPORTER)
                 .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
                 .collect(Collectors.toList());
+
+            // 8. Daftar torpedo salvo dan jaraknya yang ada di dalam map
+            var torpedoSalvoList = gameState.getGameObjects()
+                // Ambil yang object type nya gas clouds
+                .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TORPEDO_SALVO)
+                .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
+                .collect(Collectors.toList());
             
             // B. Greedy Implementation here
             // Greedy by other player -- fokus ke nembak
@@ -291,6 +298,7 @@ public class BotService {
                     } */
                 }
 
+                // Additional Actions
                 // Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
                 if (bot.getSize() > otherPlayerListSize.get(0).getSize() + jarakmin) { // jarakmin = nilai toleransi
                     playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
@@ -298,6 +306,22 @@ public class BotService {
                     Position targetPosition = otherPlayerListSize.get(0).getPosition();
                     if (bot.getPosition() == targetPosition) {
                         playerAction.action = PlayerActions.TELEPORT;
+                    }
+                }
+
+                // Aktifkan Shield untuk proteksi diri dari teleporter orang
+                if (!teleporterList.isEmpty()) {
+                    if (getDistanceBetween(bot, teleporterList.get(0)) < 0.5 * bot.getSize()) {
+                        playerAction.action = PlayerActions.ACTIVATESHIELD;
+                        playerAction.heading = (-1 * getHeadingBetween(teleporterList.get(0))) % 360;
+                    }
+                }
+
+                // Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
+                if (!torpedoSalvoList.isEmpty()) {
+                    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 0.25 * bot.getSize()) {
+                        playerAction.action = PlayerActions.ACTIVATESHIELD;
+                        playerAction.heading = (-1 * getHeadingBetween(torpedoSalvoList.get(0))) % 360;
                     }
                 }
             } 
@@ -369,32 +393,4 @@ public class BotService {
     private int toDegrees(double v) {
         return (int) (v * (180 / Math.PI));
     }
-
-/*
-
-// Aktifkan Shield untuk proteksi diri dari teleporter orang
-if (!teleporterList.isEmpty()) {
-    if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5 * bot.getSize()) {
-        playerAction.action = PlayerActions.ACTIVATESHIELD;
-        playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
-    }
-}
-
-*Tambahan*
-// 8. Daftar torpedo salvo dan jaraknya yang ada di dalam map
-var torpedoSalvoList = gameState.getGameObjects()
-    // Ambil yang object type nya gas clouds
-    .stream().filter(item -> item.getGameObjectType() == ObjectTypes.TORPEDO_SALVO)
-    .sorted(Comparator.comparing(item -> getDistanceBetween(bot, item)))
-    .collect(Collectors.toList());
-
-// Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
-if (!torpedoSalvoList.isEmpty()) {
-    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 0.25 * bot.getSize()) {
-        playerAction.action = PlayerActions.ACTIVATESHIELD;
-        playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
-    }
-}
-
- */
 }
