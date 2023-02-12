@@ -124,7 +124,12 @@ public class BotService {
                         System.out.println("Musuh sangat dekat! aktivasi teleport");
                         playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
                         playerAction.action = PlayerActions.FIRETELEPORT;
-                        if (getDistanceBetween(bot, otherPlayerList.get(0)) < 0.5 * bot.getSize()) {
+                        double jarak = getDistanceBetween(bot, otherPlayerList.get(0));
+                        int vtelp = 20;
+                        int init = getGameState().getWorld().radius;
+                        double finals = (jarak / vtelp) - init;
+                        int finpos = (int) Math.round(finals);
+                        if (getGameState().getWorld().radius == finpos) {
                             System.out.println("Teleported!!");
                             playerAction.action = PlayerActions.TELEPORT;
                         }
@@ -306,9 +311,13 @@ public class BotService {
                     System.out.println("Addcons 1 terpenuhi, ready to fire teleport!");
                     playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
                     playerAction.action = PlayerActions.FIRETELEPORT;
-                    Position targetPosition = otherPlayerListSize.get(0).getPosition();
-                    if (bot.getPosition() == targetPosition) {
-                        System.out.println("Posisi sama, Teleport");
+                    double jarak = getDistanceBetween(bot, otherPlayerList.get(0));
+                    int vtelp = 20;
+                    int init = getGameState().getWorld().radius;
+                    double finals = (jarak / vtelp) - init;
+                    int finpos = (int) Math.round(finals);
+                    if (getGameState().getWorld().radius == finpos) {
+                        System.out.println("Teleported!!");
                         playerAction.action = PlayerActions.TELEPORT;
                     }
                 }
