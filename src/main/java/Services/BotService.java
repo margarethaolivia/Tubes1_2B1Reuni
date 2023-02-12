@@ -90,35 +90,22 @@ public class BotService {
             // Greedy by other player -- fokus ke nembak
             // 0. Pertama kali make sure ada pemain lain, atau list pemain lain tidak kosong
             if (!otherPlayerList.isEmpty()) {
-                // 1. Cek aja kalo tadinya afterburnernya nyala, matiin
-                if (playerAction.action == PlayerActions.STARTAFTERBURNER) {
-                    System.out.println("Matiin AB biar ga boros");
-                    playerAction.action = PlayerActions.STOPAFTERBURNER;
-                }
-                
                 // 2. Mencari ukuran maksimal antara bot dan pemain lain terdekat sebagai perantara
-                int jarakmaks; 
+                int jarakmaks, jarakmin; 
                 if (bot.getSize() > otherPlayerList.get(0).getSize()) {
-                    jarakmaks = bot.getSize();   
+                    jarakmaks = bot.getSize();
+                    jarakmin = otherPlayerList.get(0).getSize();   
                 } else {
                     jarakmaks = otherPlayerList.get(0).getSize();
+                    jarakmin = bot.getSize();
                 }
 
                 // 3. Cek Kondisi pemain, jika pemain dekat ujung peta, lakukan kemungkinan aksi
+                // untuk menerkam
                 if (getDistanceToPoint(centralMap) > 0.6 * (getGameState().getWorld().radius)) {
                     System.out.println("Bahaya kena ujung! menghindar ke tengah");
-                    // 4. Kalo ukuran kapal lebih dari 170, cabut ke tengah pake afterburner
-                    if (bot.size >= 170) {
-                        System.out.println("Cabut GAASS");
-                        playerAction.heading = getHeadingToPoint(centralMap);
-                        playerAction.action = PlayerActions.STARTAFTERBURNER;
-                    } 
-                    // 5. Kalo ga sampe, cabut ke tengah peta biasa aja dengan forward
-                    else {
-                        System.out.println("Menghindar pelan");
-                        playerAction.heading = getHeadingToPoint(centralMap);
-                        playerAction.action = PlayerActions.FORWARD;
-                    }
+                    playerAction.heading = getHeadingToPoint(centralMap);
+                    playerAction.action = PlayerActions.FORWARD;
                 } 
                 // 6. Kalo pemain tidak diujung peta, lakukan pencarian musuh
                 else {
@@ -126,7 +113,14 @@ public class BotService {
                     playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
                     playerAction.action = PlayerActions.FORWARD;
                     // 7. Kalo jarak pemain dan bot dekat, cek kondisi ukuran musuh
-                    if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
+                    if ((getDistanceBetween(bot, otherPlayerList.get(0)) < 1.5 * bot.getSize())) {
+                        playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
+                        playerAction.action = PlayerActions.FIRETELEPORT;
+                        if (getDistanceBetween(bot, otherPlayerList.get(0)) < 0.5 * bot.getSize()) {
+                            playerAction.action = PlayerActions.TELEPORT;
+                        }
+                    } 
+                    else if ((getDistanceBetween(bot, otherPlayerList.get(0)) <= bot.getSize() + otherPlayerList.get(0).getSize() + jarakmaks)) {
                         System.out.println("Musuh dekat!");
                         // 8. Kalo musuh lebih besar
                         if ((otherPlayerList.get(0).getSize() >= bot.getSize())) {
@@ -276,6 +270,7 @@ public class BotService {
                         playerAction.heading = getHeadingToPoint(centralMap);
                         playerAction.action = PlayerActions.FORWARD;
                     }
+                
 
                     // Cek gas clouds, kalo ada dia bakal nimpa state yang ada
                     /* if (!gasCloudList.isEmpty()) {
@@ -294,6 +289,16 @@ public class BotService {
                             }
                         }
                     } */
+                }
+
+                // Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
+                if (bot.getSize() > otherPlayerListSize.get(0).getSize() + jarakmin) { // jarakmin = nilai toleransi
+                    playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
+                    playerAction.action = PlayerActions.FIRETELEPORT;
+                    Position targetPosition = otherPlayerListSize.get(0).getPosition();
+                    if (bot.getPosition() == targetPosition) {
+                        playerAction.action = PlayerActions.TELEPORT;
+                    }
                 }
             } 
             // 38. Jika list pemain kosong, maka menang
@@ -367,32 +372,9 @@ public class BotService {
 
 /*
 
-// Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
-if (!otherPlayerListSize.isEmpty()) {
-    // Untuk menerkam orang
-    if ((bot.getSize() - 20) > otherPlayerListSize.get(0).getSize() + 20) { // 20 = nilai jaga-jaga {kalau di tembak atau lawan tumbuh besar}
-        playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
-        playerAction.action = PlayerActions.FIRETELEPORT;
-        Position targetPosition = otherPlayerListSize.get(0).getPosition();
-        if (bot.getPosition() == targetPosition) {
-            playerAction.action = PlayerActions.TELEPORT;
-        }
-
-    }
-    // Untuk mekanisme kabur
-    // 10 disini untuk membedakan si kabur pake telport dengan yang lain
-    if ((otherPlayerList.get(0).getSize() - 10 > bot.getSize()) && (getDistanceBetween(bot, otherTeleporterList.get(0)) < 1.5 * bot.getSize())) {
-        playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
-        playerAction.action = playerAction.FIRETELEPORT;
-        if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5 * bot.getSize()) {
-            playerAction.action = playerAction.TELEPORT;
-        }
-    }
-}
-
 // Aktifkan Shield untuk proteksi diri dari teleporter orang
 if (!teleporterList.isEmpty()) {
-    if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5*bot.getSize()) {
+    if (getDistanceBetween(bot, otherTeleporterList.get(0)) < 0.5 * bot.getSize()) {
         playerAction.action = PlayerActions.ACTIVATESHIELD;
         playerAction.heading = (-1 * getHeadingBetween(otherTeleporterList.get(0))) % 360;
     }
