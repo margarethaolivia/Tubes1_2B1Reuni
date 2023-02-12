@@ -121,9 +121,11 @@ public class BotService {
                     playerAction.action = PlayerActions.FORWARD;
                     // 7. Kalo jarak pemain dan bot dekat, cek kondisi ukuran musuh
                     if ((getDistanceBetween(bot, otherPlayerList.get(0)) < 1.5 * bot.getSize())) {
+                        System.out.println("Musuh sangat dekat! aktivasi teleport");
                         playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
                         playerAction.action = PlayerActions.FIRETELEPORT;
                         if (getDistanceBetween(bot, otherPlayerList.get(0)) < 0.5 * bot.getSize()) {
+                            System.out.println("Teleported!!");
                             playerAction.action = PlayerActions.TELEPORT;
                         }
                     } 
@@ -301,17 +303,21 @@ public class BotService {
                 // Additional Actions
                 // Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
                 if (bot.getSize() > otherPlayerListSize.get(0).getSize() + jarakmin) { // jarakmin = nilai toleransi
+                    System.out.println("Addcons 1 terpenuhi, ready to fire teleport!");
                     playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
                     playerAction.action = PlayerActions.FIRETELEPORT;
                     Position targetPosition = otherPlayerListSize.get(0).getPosition();
                     if (bot.getPosition() == targetPosition) {
+                        System.out.println("Posisi sama, Teleport");
                         playerAction.action = PlayerActions.TELEPORT;
                     }
                 }
 
                 // Aktifkan Shield untuk proteksi diri dari teleporter orang
                 if (!teleporterList.isEmpty()) {
+                    System.out.println("Addcons 2 terpenuhi, ada teleporter lawan");
                     if (getDistanceBetween(bot, teleporterList.get(0)) < 0.5 * bot.getSize()) {
+                        System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
                         playerAction.heading = (-1 * getHeadingBetween(teleporterList.get(0))) % 360;
                     }
@@ -319,7 +325,9 @@ public class BotService {
 
                 // Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
                 if (!torpedoSalvoList.isEmpty()) {
+                    System.out.println("Addcons 3 terpenuhi, ada lawan yang nembak");
                     if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 0.25 * bot.getSize()) {
+                        System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
                         playerAction.heading = (-1 * getHeadingBetween(torpedoSalvoList.get(0))) % 360;
                     }
