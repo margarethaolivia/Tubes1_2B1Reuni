@@ -127,9 +127,9 @@ public class BotService {
                         double jarak = getDistanceBetween(bot, otherPlayerList.get(0));
                         int vtelp = 20;
                         int init = getGameState().getWorld().radius;
-                        double finals = (jarak / vtelp) - init;
+                        double finals = init - (jarak / vtelp);
                         int finpos = (int) Math.round(finals);
-                        if (getGameState().getWorld().radius == finpos) {
+                        if ((getGameState().getWorld().radius - finpos >= -1) || (getGameState().getWorld().radius - finpos <= 1)) {
                             System.out.println("Teleported!!");
                             playerAction.action = PlayerActions.TELEPORT;
                         }
@@ -197,8 +197,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 20. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                else if (getDistanceBetween(bot, foodList.get(0)) == getDistanceBetween(bot, foodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan food 1 :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan food 2 :)");
                                     playerAction.heading = getHeadingBetween(foodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -211,8 +215,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 23. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan superfood :)");
+                                else if (getDistanceBetween(bot, superFoodList.get(0)) == getDistanceBetween(bot, superFoodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan superfood 1 :)");
+                                    playerAction.heading = getHeadingBetween(superFoodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan superfood 2 :)");
                                     playerAction.heading = getHeadingBetween(superFoodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -225,8 +233,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 26. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                else if (getDistanceBetween(bot, foodList.get(0)) == getDistanceBetween(bot, foodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan food 1 :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan food 2 :)");
                                     playerAction.heading = getHeadingBetween(foodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -243,8 +255,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 30. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                else if (getDistanceBetween(bot, foodList.get(0)) == getDistanceBetween(bot, foodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan food 1 :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan food 2 :)");
                                     playerAction.heading = getHeadingBetween(foodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -257,8 +273,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 33. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan superfood :)");
+                                else if (getDistanceBetween(bot, superFoodList.get(0)) == getDistanceBetween(bot, superFoodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan superfood 1 :)");
+                                    playerAction.heading = getHeadingBetween(superFoodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan superfood 2 :)");
                                     playerAction.heading = getHeadingBetween(superFoodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -270,8 +290,12 @@ public class BotService {
                                     System.out.println("Ukuranku udah kegedean :( jangan makan");
                                 } 
                                 // 36. Kalo blm, ya silakan makan
-                                else {
-                                    System.out.println("Aku masih kecil butuh asupan food :)");
+                                else if (getDistanceBetween(bot, foodList.get(0)) == getDistanceBetween(bot, foodList.get(1))) {
+                                    System.out.println("Aku masih kecil butuh asupan food 1 :)");
+                                    playerAction.heading = getHeadingBetween(foodList.get(0));
+                                    playerAction.action = PlayerActions.FORWARD;
+                                } else {
+                                    System.out.println("Aku masih kecil butuh asupan food 2 :)");
                                     playerAction.heading = getHeadingBetween(foodList.get(0));
                                     playerAction.action = PlayerActions.FORWARD;
                                 }
@@ -314,9 +338,9 @@ public class BotService {
                     double jarak = getDistanceBetween(bot, otherPlayerList.get(0));
                     int vtelp = 20;
                     int init = getGameState().getWorld().radius;
-                    double finals = (jarak / vtelp) - init;
+                    double finals = init - (jarak / vtelp);
                     int finpos = (int) Math.round(finals);
-                    if (getGameState().getWorld().radius == finpos) {
+                    if ((getGameState().getWorld().radius - finpos >= -1) || (getGameState().getWorld().radius - finpos <= 1)) {
                         System.out.println("Teleported!!");
                         playerAction.action = PlayerActions.TELEPORT;
                     }
@@ -325,7 +349,7 @@ public class BotService {
                 // Aktifkan Shield untuk proteksi diri dari teleporter orang
                 if (!teleporterList.isEmpty()) {
                     System.out.println("Addcons 2 terpenuhi, ada teleporter lawan");
-                    if (getDistanceBetween(bot, teleporterList.get(0)) < 1.5 * bot.getSize()) {
+                    if (getDistanceBetween(bot, teleporterList.get(0)) < 2 * bot.getSize()) {
                         System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
                         playerAction.heading = (-1 * getHeadingBetween(teleporterList.get(0))) % 360;
@@ -335,7 +359,7 @@ public class BotService {
                 // Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
                 if (!torpedoSalvoList.isEmpty()) {
                     System.out.println("Addcons 3 terpenuhi, ada lawan yang nembak");
-                    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 1.5 * bot.getSize()) {
+                    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 2 * bot.getSize()) {
                         System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
                         playerAction.heading = (-1 * getHeadingBetween(torpedoSalvoList.get(0))) % 360;
