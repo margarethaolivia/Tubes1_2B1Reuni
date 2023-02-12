@@ -331,7 +331,7 @@ public class BotService {
 
                 // Additional Actions
                 // Bot akan menembakkan teleport ke musuh dimana (size bot - 20) > size musuh;
-                if (bot.getSize() > otherPlayerListSize.get(0).getSize() + jarakmin) { // jarakmin = nilai toleransi
+                if (bot.getSize() - 20 > otherPlayerListSize.get(0).getSize()) { // jarakmin = nilai toleransi
                     System.out.println("Addcons 1 terpenuhi, ready to fire teleport!");
                     playerAction.heading = getHeadingBetween((otherPlayerListSize.get(0)));
                     playerAction.action = PlayerActions.FIRETELEPORT;
