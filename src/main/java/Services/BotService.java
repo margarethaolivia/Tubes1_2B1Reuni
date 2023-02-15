@@ -122,14 +122,15 @@ public class BotService {
                     // 7. Kalo jarak pemain dan bot dekat, cek kondisi ukuran musuh
                     if ((getDistanceBetween(bot, otherPlayerList.get(0)) < 1.5 * bot.getSize())) {
                         System.out.println("Musuh sangat dekat! aktivasi teleport");
-                        playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
+                        playerAction.heading = getHeadingBetween(otherPlayerList.get(0));
+                        // playerAction.heading = (-1 * getHeadingBetween(otherPlayerList.get(0))) % 360;
                         playerAction.action = PlayerActions.FIRETELEPORT;
                         double jarak = getDistanceBetween(bot, otherPlayerList.get(0));
                         int vtelp = 20;
                         int init = getGameState().getWorld().radius;
                         double finals = init - (jarak / vtelp);
                         int finpos = (int) Math.round(finals);
-                        if ((getGameState().getWorld().radius - finpos >= -1) || (getGameState().getWorld().radius - finpos <= 1)) {
+                        if ((getGameState().getWorld().radius - finpos >= -3) || (getGameState().getWorld().radius - finpos <= 3)) {
                             System.out.println("Teleported!!");
                             playerAction.action = PlayerActions.TELEPORT;
                         }
@@ -340,7 +341,7 @@ public class BotService {
                     int init = getGameState().getWorld().radius;
                     double finals = init - (jarak / vtelp);
                     int finpos = (int) Math.round(finals);
-                    if ((getGameState().getWorld().radius - finpos >= -1) || (getGameState().getWorld().radius - finpos <= 1)) {
+                    if ((getGameState().getWorld().radius - finpos >= -3) || (getGameState().getWorld().radius - finpos <= 3)) {
                         System.out.println("Teleported!!");
                         playerAction.action = PlayerActions.TELEPORT;
                     }
@@ -349,20 +350,18 @@ public class BotService {
                 // Aktifkan Shield untuk proteksi diri dari teleporter orang
                 if (!teleporterList.isEmpty()) {
                     System.out.println("Addcons 2 terpenuhi, ada teleporter lawan");
-                    if (getDistanceBetween(bot, teleporterList.get(0)) < 2 * bot.getSize()) {
+                    if (getDistanceBetween(bot, teleporterList.get(0)) < 3 * bot.getSize()) {
                         System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
-                        playerAction.heading = (-1 * getHeadingBetween(teleporterList.get(0))) % 360;
                     }
                 }
 
                 // Aktifkan Shield untuk proteksi diri dari torpedo salvo orang
                 if (!torpedoSalvoList.isEmpty()) {
                     System.out.println("Addcons 3 terpenuhi, ada lawan yang nembak");
-                    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 2 * bot.getSize()) {
+                    if (getDistanceBetween(bot, torpedoSalvoList.get(0)) < 3 * bot.getSize()) {
                         System.out.println("Aktivasi shield");
                         playerAction.action = PlayerActions.ACTIVATESHIELD;
-                        playerAction.heading = (-1 * getHeadingBetween(torpedoSalvoList.get(0))) % 360;
                     }
                 }
             } 
@@ -404,9 +403,23 @@ public class BotService {
         return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
     }
 
+    // Fungsi buatan Leon - getDistanceToCenter
+    private double getDistanceObjectPoint(GameObject otherObject,Position target) {
+        var triangleX = Math.abs(otherObject.getPosition().x - target.x);
+        var triangleY = Math.abs(otherObject.getPosition().y - target.y);
+        return Math.sqrt(triangleX * triangleX + triangleY * triangleY);
+    }
+
     private int getHeadingBetween(GameObject otherObject) {
         var direction = toDegrees(Math.atan2(otherObject.getPosition().y - bot.getPosition().y,
                 otherObject.getPosition().x - bot.getPosition().x));
+        return (direction + 360) % 360;
+    }
+
+    // Fungsi buatan Leon
+    private int getHeadingObjectPoint(GameObject otherObject, Position target) {
+        var direction = toDegrees(Math.atan2(otherObject.getPosition().y - target.y,
+                otherObject.getPosition().x - target.x));
         return (direction + 360) % 360;
     }
 
