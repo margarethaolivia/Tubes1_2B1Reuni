@@ -20,32 +20,26 @@ public class KejarMusuh {
     public void ketemuMusuh(GameObject bot, PlayerAction playerAction, GameObject pemainLainTerdekat) {
         // 3.1. Kalo musuh lebih besar
         if ((pemainLainTerdekat.getSize() >= bot.getSize())) {
-            // System.out.println("Ukuran lebih besarrr");
             // Kalo ukuran bot diatas 50, artinya bot bisa nembak
             if (bot.getSize() >= 50) {
-                // System.out.println("Tembak!");
                 playerAction.heading = getHeadingBetween(bot, pemainLainTerdekat);
                 playerAction.action = PlayerActions.FIRETORPEDOES;
             } 
             // Kalo ga sampe 50, mending kabur ke arah belawanan si bot lawan
             else {
-                // System.out.println("Kabur");
                 playerAction.heading = (-1 * getHeadingBetween(bot, pemainLainTerdekat)) % 360;
                 playerAction.action = PlayerActions.FORWARD;
             }
         } 
         // 3.2. Kalo musuh lebih kecil
         else {
-            // System.out.println("Ukuran lebih kecil nih");
             // Kalo ukuran bot diatas 50, artinya bot bisa nembak
             if (bot.getSize() >= 50) {
-                // System.out.println("Tembak!");
                 playerAction.heading = getHeadingBetween(bot, pemainLainTerdekat);
                 playerAction.action = PlayerActions.FIRETORPEDOES;
             } 
             // Kalo ga sampe 50, setidaknya kita lebih besar buat makan dia, arahkan ke dekatnya
             else {
-                // System.out.println("Makan");
                 playerAction.heading = getHeadingBetween(bot, pemainLainTerdekat);
                 playerAction.action = PlayerActions.FORWARD;
             }

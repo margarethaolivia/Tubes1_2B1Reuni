@@ -129,10 +129,8 @@ public class BotService {
 
             // a. Pastikan masih ada pemain lain dalam peta, jika ada, jalankan algoritma greedy
             if (!otherPlayerList.isEmpty()) {
-                // System.out.println(torpedoSalvoList);
                 // 1.a. State utama - Edge Map Handling
                 if (getDistanceToPoint(centralMap) > 0.75 * (getGameState().getWorld().radius)) {
-                    // System.out.println("Bahaya kena ujung! menghindar ke tengah");
                     playerAction.heading = getHeadingToPoint(centralMap);
                     playerAction.action = PlayerActions.FORWARD;
                 } 
@@ -140,25 +138,21 @@ public class BotService {
                 else {
                     // i. Berada pada zona tembak musuh dan ukuran masih kecil
                     if (zonaTembakMusuh(pemainLainTerdekat) && masihKecil()) {
-                        // System.out.println("Strategi Jelajah 1 - Masih Kecil");
                         makan.cariMakan(bot, playerAction, radiusPeta, superFoodTerdekat, superFoodTerdekat2, foodTerdekat, foodTerdekat2);
                         count += 1;
                     }
                     // ii. Tidak berada pada zona tembak musuh dan ukuran masih kecil
                     else if (!zonaTembakMusuh(pemainLainTerdekat) && masihKecil()) {
-                        // System.out.println("Strategi Jelajah 2 - Bukan Zona Tembak");
                         makan.cariMakan(bot, playerAction, radiusPeta, superFoodTerdekat, superFoodTerdekat2, foodTerdekat, foodTerdekat2);
                         count += 2;
                     }
                     // iii. Berada pada zona tembak musuh tetapi ukuran sudah besar
                     else if (zonaTembakMusuh(pemainLainTerdekat) && !masihKecil()) {
-                        // System.out.println("Strategi Serang - Sudah Matang");
                         kejarmusuh.ketemuMusuh(bot, playerAction, pemainLainTerdekat);
                         count += 3;
                     }
                     // iv. Tidak berada pada zona tembak musuh tetapi ukuran sudah besar 
                     else {
-                        // System.out.println("Mendekatkan ke Zona Serang");
                         playerAction.heading = getHeadingBetween(bot, pemainLainTerdekat);
                         playerAction.action = PlayerActions.FORWARD;
                         count += 4;
@@ -169,7 +163,6 @@ public class BotService {
                 if (!teleporterList.isEmpty()) {
                     // Kondisi teleporter berada pada -20 <= heading <= 20 dari bot
                     if ((teleporterList.get(0).currentHeading - getHeadingBetween(teleporterList.get(0), bot)) >= -20 && (teleporterList.get(0).currentHeading - getHeadingBetween(teleporterList.get(0), bot)) <= 20) {
-                        // System.out.println("Addcons 2 terpenuhi, ada teleporter lawan");
                         add1 += 1;
                         // Pendefinisian persamaan kinetika 1 dimensi
                         double jarak = getDistanceBetween(bot, teleporterList.get(0));
@@ -179,7 +172,6 @@ public class BotService {
                         int finpos = (int) Math.round(finals);
                         // Memenuhi kondisi waktu melalui radius peta
                         if ((radiusPeta - finpos >= -3) && (radiusPeta - finpos <= 3)) {
-                            // System.out.println("Aktivasi shield");
                             add1 += 2;
                             playerAction.action = PlayerActions.ACTIVATESHIELD;
                         }
@@ -189,7 +181,6 @@ public class BotService {
                 // 3. State ketiga - Fire Teleporter (AddCons 2)
                 if (bot.getSize() - 20 > pemainKecilLainTerdekat.getSize() && bot.getSize() >= 80) {
                     // Kondisi ada player dengan ukuran lebih kecil tapi ukuran kita udah cukup stabil
-                    // System.out.println("Addcons 1 terpenuhi, ready to fire teleport!");
                     add2 += 1;
                     // Pendefinisian persamaan kinetika 1 dimensi
                     playerAction.heading = getHeadingBetween(bot, pemainKecilLainTerdekat);
@@ -205,7 +196,6 @@ public class BotService {
                             // Memastikan posisi dari teleporter, benar punya kita
                             if ((teleporterList.get(i).currentHeading - getHeadingBetween(teleporterList.get(i), pemainKecilLainTerdekat)) >= -30 && (teleporterList.get(i).currentHeading - getHeadingBetween(teleporterList.get(i), pemainKecilLainTerdekat)) <= 30) {
                                 add2 += 2;
-                                // System.out.println("Teleported!!");
                                 playerAction.action = PlayerActions.TELEPORT;
                                 break;
                             }
@@ -217,9 +207,8 @@ public class BotService {
                 if (!torpedoSalvoList.isEmpty()) {
                     // Kondisi torpedoSalvo berada pada -20 <= heading <= 20 dari bot
                     if ((torpedoSalvoList.get(0).currentHeading - getHeadingBetween(torpedoSalvoList.get(0), bot)) >= -20 && (torpedoSalvoList.get(0).currentHeading - getHeadingBetween(torpedoSalvoList.get(0), bot)) <= 20) {
-                        // System.out.println("Addcons 3 terpenuhi, ada lawan yang nembak");
                         add3 += 1;
-                        // Pendefinisian persamaan kinetika 1 dimensi
+                        // Pendefinisian persamaan kinematika 1 dimensi
                         double jarak = getDistanceBetween(bot, torpedoSalvoList.get(0));
                         int vtor = 60;
                         int init = radiusPeta;
@@ -228,7 +217,6 @@ public class BotService {
                         // Memenuhi kondisi waktu melalui radius peta
                         if ((radiusPeta - finpos >= -3) && (radiusPeta - finpos <= 3)) {
                             add3 += 2;
-                            // System.out.println("Aktivasi shield");
                             playerAction.action = PlayerActions.ACTIVATESHIELD;
                         }
                     }
@@ -241,7 +229,6 @@ public class BotService {
                     if (getDistanceBetween(bot, gasCloudList.get(0)) <= 0.8 * gasCloudList.get(0).getSize()) {
                         // Skema menghindari dengan perputaran 90 derajat
                         add4 += 2;
-                        // System.out.println("Addcons 4 terpenuhi, Deket gas cloud!");
                         playerAction.heading = (getHeadingBetween(bot, gasCloudList.get(0)) + 90) % 360;
                         playerAction.action = PlayerActions.FORWARD;
                     }
@@ -250,7 +237,7 @@ public class BotService {
 
             // b. Jika sudah tidak ada pemain lain, maka menang :)
             else {
-                System.out.println("MENANG!!");
+                System.out.println("MENANG!");
             }
 
             printState(jumlahplayerTotal, count, bot, playerAction, add1, add2, add3, add4);
