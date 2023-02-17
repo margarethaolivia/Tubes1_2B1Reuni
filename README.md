@@ -89,4 +89,4 @@ Pada Tugas Besar kali ini, kami berhasil mengimplementasikan fungsionalitas dari
 8. Jalankan seluruh bot yang ingin dimainkan
 9. Setelah permainan selesai, riwayat permainan akan tersimpan pada 2 file JSON `GameStateLog\_{Timestamp}` dalam folder `logger-publish`. Kedua file tersebut diantaranya GameComplete (hasil akhir dari permainan) dan proses dalam permainan tersebut.
 
-Cara lain menjalankan program yaitu dengan membuat file `run.sh` pada Linux atau `run.bat`
+Cara lain menjalankan program yaitu dengan membuat file `run.sh` pada Linux atau `run.bat` pada Windows.
